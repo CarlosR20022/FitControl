@@ -41,4 +41,19 @@ class DashboardController extends Controller
             'suplementos'
         ));
     }
+
+    // Detalle de los ingresos del día: todos los pagos de hoy
+    public function ingresosDia()
+    {
+        $hoy = Carbon::today();
+
+        $pagos = Pago::with(['cliente', 'producto'])
+                     ->whereDate('fecha_pago', $hoy)
+                     ->orderBy('created_at', 'desc')
+                     ->get();
+
+        $totalDia = $pagos->sum('total');
+
+        return view('ingresos.dia', compact('pagos', 'totalDia', 'hoy'));
+    }
 }

@@ -18,4 +18,14 @@ class Pago extends Model
         'metodo_pago',
         'fecha_pago'
     ];
+
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
+    }
+
+    public function producto()
+    {
+        return $this->belongsTo(Producto::class);
+    }
 }

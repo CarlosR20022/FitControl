@@ -51,7 +51,7 @@
                 <a href="{{ route('clientes.create') }}" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-brand-dark dark:text-gray-300 hover:text-brand-orange dark:hover:text-brand-orange hover:bg-orange-50 dark:hover:bg-gray-700 transition-colors">
                     + Agregar Nuevo Cliente
                 </a>
-                <a href="#" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-brand-dark dark:text-gray-300 hover:text-brand-orange dark:hover:text-brand-orange hover:bg-orange-50 dark:hover:bg-gray-700 transition-colors">
+                <a href="{{ route('clientes.consulta') }}" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-brand-dark dark:text-gray-300 hover:text-brand-orange dark:hover:text-brand-orange hover:bg-orange-50 dark:hover:bg-gray-700 transition-colors">
                     🔍 Consulta
                 </a>
                 <a href="{{ route('modificaciones.index') }}" class="...">✏️ Modificaciones</a>
@@ -87,7 +87,7 @@
     <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-3 transition-colors duration-200">
         <div class="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center gap-3">
             <input type="date" class="w-full sm:w-auto bg-transparent border border-gray-300 dark:border-gray-600 rounded px-3 py-1.5 text-sm font-medium text-brand-dark dark:text-gray-200 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange">
-            <button class="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white text-sm font-bold px-4 py-1.5 rounded shadow-sm transition-colors">
+            <button onclick="abrirModalReporte()" class="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white text-sm font-bold px-4 py-1.5 rounded shadow-sm transition-colors">
                 Generar Reporte
             </button>
         </div>
@@ -109,13 +109,16 @@
                 <svg class="w-16 h-16 opacity-20 absolute -right-2 -bottom-2 z-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
             </a>
 
-            <div class="bg-brand-orange rounded shadow-sm p-5 min-h-[164px] flex justify-between items-center text-white relative overflow-hidden">
-                <div class="relative z-10">
-                    <h3 class="text-4xl font-black mb-1">{{ $porVencer ?? 0 }}</h3>
-                    <p class="text-sm font-medium opacity-90">Por Vencer (Próx. 5 días)</p>
+            <a href="{{ route('clientes.porVencer') }}" class="bg-brand-orange rounded shadow-sm p-5 min-h-[164px] flex justify-between items-center text-white relative overflow-hidden hover:scale-[1.02] hover:shadow-md transition-all cursor-pointer block">
+                <div class="relative z-10 flex flex-col justify-between h-full">
+                    <div>
+                        <h3 class="text-4xl font-black mb-1">{{ $porVencer ?? 0 }}</h3>
+                        <p class="text-sm font-medium opacity-90">Por Vencer (Próx. 5 días)</p>
+                    </div>
+                    <span class="text-xs font-bold mt-2 bg-white/20 inline-block px-2 py-1 rounded w-max">Ver lista →</span>
                 </div>
                 <svg class="w-16 h-16 opacity-20 absolute -right-2 -bottom-2 z-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
-            </div>
+            </a>
 
             <a href="{{ route('clientes.vencidos') }}" class="bg-[#EF4444] rounded shadow-sm p-5 min-h-[164px] flex justify-between items-center text-white relative overflow-hidden hover:scale-[1.02] hover:shadow-md transition-all cursor-pointer block">
                 <div class="relative z-10 flex flex-col justify-between h-full">
@@ -131,29 +134,32 @@
 
         <!-- FILA 2: MÉTRICAS SECUNDARIAS -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div class="bg-white dark:bg-gray-800 rounded shadow-sm p-5 min-h-[140px] border border-gray-100 dark:border-gray-700 flex flex-col justify-center transition-colors">
+            <a href="{{ route('clientes.historico') }}" class="bg-white dark:bg-gray-800 rounded shadow-sm p-5 min-h-[140px] border border-gray-100 dark:border-gray-700 flex flex-col justify-center transition-colors hover:scale-[1.02] hover:shadow-md cursor-pointer block">
                 <div class="flex items-center gap-2 mb-2">
                     <span class="text-green-500 bg-green-50 dark:bg-green-500/10 p-1 rounded">👤</span>
                     <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Socios Histórico</span>
                 </div>
                 <span class="text-3xl font-light text-brand-dark dark:text-white">{{ $totalHistorico ?? 0 }}</span>
-            </div>
+                <span class="text-xs font-bold mt-2 text-brand-orange">Ver lista →</span>
+            </a>
             
-            <div class="bg-white dark:bg-gray-800 rounded shadow-sm p-5 min-h-[140px] border border-gray-100 dark:border-gray-700 flex flex-col justify-center transition-colors">
+            <a href="{{ route('clientes.nuevos') }}" class="bg-white dark:bg-gray-800 rounded shadow-sm p-5 min-h-[140px] border border-gray-100 dark:border-gray-700 flex flex-col justify-center transition-colors hover:scale-[1.02] hover:shadow-md cursor-pointer block">
                 <div class="flex items-center gap-2 mb-2">
                     <span class="text-purple-500 bg-purple-50 dark:bg-purple-500/10 p-1 rounded">🎯</span>
                     <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Nuevos (Mes actual)</span>
                 </div>
                 <span class="text-3xl font-light text-brand-dark dark:text-white">{{ $nuevosMes ?? 0 }}</span>
-            </div>
+                <span class="text-xs font-bold mt-2 text-brand-orange">Ver lista →</span>
+            </a>
 
-            <div class="bg-white dark:bg-gray-800 rounded shadow-sm p-5 min-h-[140px] border border-gray-100 dark:border-gray-700 flex flex-col justify-center transition-colors">
+            <a href="{{ route('clientes.bajas') }}" class="bg-white dark:bg-gray-800 rounded shadow-sm p-5 min-h-[140px] border border-gray-100 dark:border-gray-700 flex flex-col justify-center transition-colors hover:scale-[1.02] hover:shadow-md cursor-pointer block">
                 <div class="flex items-center gap-2 mb-2">
                     <span class="text-red-500 bg-red-50 dark:bg-red-500/10 p-1 rounded">📉</span>
                     <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Bajas (Mes actual)</span>
                 </div>
                 <span class="text-3xl font-light text-brand-dark dark:text-white">{{ $bajasMes ?? 0 }}</span>
-            </div>
+                <span class="text-xs font-bold mt-2 text-brand-orange">Ver lista →</span>
+            </a>
         </div>
 
         <!-- FILA 3: INGRESOS Y RENOVACIONES -->
@@ -166,7 +172,7 @@
                         <svg class="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
                     </div>
                     <span class="text-4xl font-light text-blue-500 dark:text-blue-400">${{ number_format($ingresosDia ?? 0, 2) }}</span>
-                    <a href="#" class="block mt-2 text-xs font-bold text-red-500 hover:text-red-600 transition-colors">Ver Detalles ></a>
+                    <a href="{{ route('ingresos.dia') }}" class="block mt-2 text-xs font-bold text-red-500 hover:text-red-600 transition-colors">Ver Detalles ></a>
                 </div>
                 <div class="relative z-10 bg-gray-50 dark:bg-gray-700 p-4 rounded-xl border border-gray-100 dark:border-gray-600 transition-colors">
                     <span class="text-3xl">💵</span>
@@ -180,7 +186,7 @@
                         <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Renovaciones Próximas</span>
                     </div>
                     <span class="text-4xl font-light text-brand-dark dark:text-white">{{ $renovacionesProximas ?? 0 }} <span class="text-base text-gray-400">PAGOS</span></span>
-                    <a href="#" class="block mt-2 text-xs font-bold text-red-500 hover:text-red-600 transition-colors">Ver Detalles ></a>
+                    <a href="{{ route('clientes.porVencer') }}" class="block mt-2 text-xs font-bold text-red-500 hover:text-red-600 transition-colors">Ver Detalles ></a>
                 </div>
                 <div class="relative z-10 bg-gray-50 dark:bg-gray-700 p-4 rounded-xl border border-gray-100 dark:border-gray-600 transition-colors">
                     <span class="text-3xl">📅</span>
@@ -267,6 +273,41 @@
         </div>
     </div>
 
+    <!-- MODAL DE REPORTE -->
+    <div id="reporteModalOverlay" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative border border-gray-100 dark:border-gray-700 transition-colors">
+            <button onclick="cerrarModalReporte()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div class="p-6">
+                <h2 class="text-2xl font-black text-brand-dark dark:text-white text-center mb-2">Generar Reporte</h2>
+                <p class="text-gray-500 dark:text-gray-400 text-sm text-center mb-6">Elige el periodo del reporte o usa un atajo rápido.</p>
+                <div class="grid grid-cols-3 gap-2 mb-5">
+                    <button type="button" onclick="setRango('dia')" class="bg-orange-50 dark:bg-brand-orange/10 border border-orange-200 dark:border-brand-orange/30 hover:border-brand-orange text-brand-orange font-bold py-2 rounded-xl text-sm transition-all">Día</button>
+                    <button type="button" onclick="setRango('semana')" class="bg-orange-50 dark:bg-brand-orange/10 border border-orange-200 dark:border-brand-orange/30 hover:border-brand-orange text-brand-orange font-bold py-2 rounded-xl text-sm transition-all">Semana</button>
+                    <button type="button" onclick="setRango('mes')" class="bg-orange-50 dark:bg-brand-orange/10 border border-orange-200 dark:border-brand-orange/30 hover:border-brand-orange text-brand-orange font-bold py-2 rounded-xl text-sm transition-all">Mes</button>
+                </div>
+                <form action="{{ route('reporte.pdf') }}" method="GET" target="_blank">
+                    <div class="grid grid-cols-2 gap-3 mb-5">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Desde</label>
+                            <input type="date" id="fecha_inicio" name="fecha_inicio" required value="{{ date('Y-m-d') }}" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm font-medium text-brand-dark dark:text-gray-200 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Hasta</label>
+                            <input type="date" id="fecha_fin" name="fecha_fin" required value="{{ date('Y-m-d') }}" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm font-medium text-brand-dark dark:text-gray-200 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange">
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-5">El PDF incluye: clientes nuevos, socios vencidos, próximos a vencer con sus fechas, total de socios, bajas, ingresos por día y total del periodo, y próximas renovaciones.</p>
+                    <div class="flex gap-3">
+                        <button type="button" onclick="cerrarModalReporte()" class="w-1/2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-bold py-3 rounded-xl transition-colors">Cancelar</button>
+                        <button type="submit" class="w-1/2 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl shadow-md transition-all">⬇ Descargar PDF</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- SCRIPTS -->
     <script>
         // --- LOGICA DEL MODO OSCURO ---
@@ -330,6 +371,40 @@
         function volverOpciones() {
             vistaConfirmacion.classList.add('hidden');
             vistaOpciones.classList.remove('hidden');
+        }
+
+        // --- LOGICA DEL MODAL DE REPORTE ---
+        const reporteOverlay = document.getElementById('reporteModalOverlay');
+
+        function abrirModalReporte() {
+            reporteOverlay.classList.remove('hidden');
+        }
+
+        function cerrarModalReporte() {
+            reporteOverlay.classList.add('hidden');
+        }
+
+        function fechaLocal(d) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const dia = String(d.getDate()).padStart(2, '0');
+            return y + '-' + m + '-' + dia;
+        }
+
+        function setRango(tipo) {
+            const hoy = new Date();
+            let inicio = new Date(hoy);
+            let fin = new Date(hoy);
+            if (tipo === 'semana') {
+                const diaSemana = (hoy.getDay() + 6) % 7; // lunes = 0
+                inicio.setDate(hoy.getDate() - diaSemana);
+                fin.setDate(inicio.getDate() + 6);
+            } else if (tipo === 'mes') {
+                inicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+                fin = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+            }
+            document.getElementById('fecha_inicio').value = fechaLocal(inicio);
+            document.getElementById('fecha_fin').value = fechaLocal(fin);
         }
     </script>
 </body>
