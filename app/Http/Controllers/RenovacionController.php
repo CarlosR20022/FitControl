@@ -37,13 +37,7 @@ class RenovacionController extends Controller
             ? Carbon::parse($cliente->fecha_vencimiento)
             : $hoy->copy();
 
-        $nuevoVencimiento = $base->copy();
-        $nombrePlan = strtolower($producto->nombre);
-        if (str_contains($nombrePlan, 'mes')) {
-            $nuevoVencimiento->addMonth(); // Suma 1 mes
-        } elseif (str_contains($nombrePlan, 'semana')) {
-            $nuevoVencimiento->addDays(7); // Suma 1 semana
-        }
+        $nuevoVencimiento = $producto->calcularVencimiento($base);
 
         // Registrar el pago de la renovación
         Pago::create([

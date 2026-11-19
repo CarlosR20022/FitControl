@@ -25,13 +25,15 @@ class ProductosController extends Controller
     public function store(Request $request)
     {
         $datos = $request->validate([
-            'nombre' => 'required|string|max:255',
+            'nombre' => 'required|string|max:255|unique:productos,nombre',
             'categoria' => 'required|in:membresia,visita,suplemento,bebida,snack',
             'precio' => 'required|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
+            'duracion' => 'nullable|in:dia,semana,mes',
         ]);
 
         $datos['stock'] = $this->normalizarStock($datos);
+        $datos['duracion'] = $this->normalizarDuracion($datos);
 
         Producto::create($datos);
 
@@ -49,13 +51,15 @@ class ProductosController extends Controller
     public function update(Request $request, $id)
     {
         $datos = $request->validate([
-            'nombre' => 'required|string|max:255',
+            'nombre' => 'required|string|max:255|unique:productos,nombre,' . $id,
             'categoria' => 'required|in:membresia,visita,suplemento,bebida,snack',
             'precio' => 'required|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
+            'duracion' => 'nullable|in:dia,semana,mes',
         ]);
 
         $datos['stock'] = $this->normalizarStock($datos);
+        $datos['duracion'] = $this->normalizarDuracion($datos);
 
         $producto = Producto::findOrFail($id);
         $producto->update($datos);
@@ -87,5 +91,18 @@ class ProductosController extends Controller
             return null;
         }
         return $datos['stock'] ?? null;
+    }
+
+    // La duración solo aplica a los planes (membresías y visitas).
+    // Si no se eligió, una visita dura un día y una membresía un mes.
+    private function normalizarDuracion(array $datos)
+    {
+        if (!in_array($datos['categoria'], ['membresia', 'visita'])) {
+            return null;
+        }
+        if (in_array($datos['duracion'] ?? null, ['dia', 'semana', 'mes'], true)) {
+            return $datos['duracion'];
+        }
+        return $datos['categoria'] === 'visita' ? 'dia' : 'mes';
     }
 }

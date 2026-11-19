@@ -100,7 +100,6 @@
                     <span class="font-semibold text-sm text-brand-brown dark:text-gray-300 group-hover:text-brand-orange transition-colors hidden sm:block">
                         {{ Auth::user()->name ?? 'Carlos Rendón' }}
                     </span>
-                    <svg class="w-4 h-4 text-gray-400 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </div>
             </div>
 
@@ -144,7 +143,7 @@
 
                 <div>
                     <label class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase block mb-1">Categoría</label>
-                    <select name="categoria" id="inputCategoria" onchange="actualizarCampoStock()" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-orange focus:ring-2 focus:ring-orange-100 dark:focus:ring-brand-orange/30 transition-all font-bold text-brand-dark dark:text-white">
+                    <select name="categoria" id="inputCategoria" onchange="actualizarCampoStock(true)" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-orange focus:ring-2 focus:ring-orange-100 dark:focus:ring-brand-orange/30 transition-all font-bold text-brand-dark dark:text-white">
                         <option value="" disabled {{ old('categoria', $producto->categoria ?? '') == '' ? 'selected' : '' }}>Selecciona una categoría</option>
                         <option value="membresia" {{ old('categoria', $producto->categoria ?? '') == 'membresia' ? 'selected' : '' }}>Membresía</option>
                         <option value="visita" {{ old('categoria', $producto->categoria ?? '') == 'visita' ? 'selected' : '' }}>Visita</option>
@@ -152,6 +151,16 @@
                         <option value="bebida" {{ old('categoria', $producto->categoria ?? '') == 'bebida' ? 'selected' : '' }}>Bebida</option>
                         <option value="snack" {{ old('categoria', $producto->categoria ?? '') == 'snack' ? 'selected' : '' }}>Snack</option>
                     </select>
+                </div>
+
+                <div id="campoDuracion">
+                    <label class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase block mb-1">Duración del plan</label>
+                    <select name="duracion" id="inputDuracion" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-orange focus:ring-2 focus:ring-orange-100 dark:focus:ring-brand-orange/30 transition-all font-bold text-brand-dark dark:text-white">
+                        <option value="dia" {{ old('duracion', $producto ? $producto->duracionEfectiva() : 'mes') == 'dia' ? 'selected' : '' }}>Día (vence el mismo día)</option>
+                        <option value="semana" {{ old('duracion', $producto ? $producto->duracionEfectiva() : 'mes') == 'semana' ? 'selected' : '' }}>Semana (7 días)</option>
+                        <option value="mes" {{ old('duracion', $producto ? $producto->duracionEfectiva() : 'mes') == 'mes' ? 'selected' : '' }}>Mes (1 mes)</option>
+                    </select>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Solo para membresías y visitas: cuánto dura el plan.</p>
                 </div>
 
                 <div>
@@ -215,8 +224,9 @@
         });
 
         // El campo de stock solo aparece cuando el producto lo lleva:
-        // bebidas, snacks y suplementos en bote (no membresías, visitas ni scoops)
-        function actualizarCampoStock() {
+        // bebidas, snacks y suplementos en bote (no membresías, visitas ni scoops).
+        // La duración solo aplica a los planes (membresías y visitas).
+        function actualizarCampoStock(ajustarDuracion) {
             const categoria = document.getElementById('inputCategoria').value;
             const nombre = document.getElementById('inputNombre').value.toLowerCase();
             const campo = document.getElementById('campoStock');
@@ -227,9 +237,25 @@
             } else {
                 campo.classList.remove('hidden');
             }
+            const campoDuracion = document.getElementById('campoDuracion');
+            const esPlan = categoria === 'membresia' || categoria === 'visita';
+            if (esPlan) {
+                campoDuracion.classList.remove('hidden');
+            } else {
+                campoDuracion.classList.add('hidden');
+            }
+            // Al cambiar de categoría, la duración se ajusta a lo habitual de ese plan
+            if (ajustarDuracion) {
+                const inputDuracion = document.getElementById('inputDuracion');
+                if (categoria === 'visita') {
+                    inputDuracion.value = 'dia';
+                } else if (categoria === 'membresia') {
+                    inputDuracion.value = 'mes';
+                }
+            }
         }
 
-        actualizarCampoStock();
+        actualizarCampoStock(false);
     </script>
 </body>
 </html>

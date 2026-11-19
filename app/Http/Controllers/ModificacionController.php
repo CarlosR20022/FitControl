@@ -33,6 +33,6 @@ class ModificacionController extends Controller
         $producto->save();
 
         // Regresa a la misma pantalla para seguir editando si es necesario
-        return redirect()->back(); 
+        return redirect()->back()->with('success', 'Precio de "' . $producto->nombre . '" actualizado a $' . number_format($request->precio, 2) . '.');
     }
 }

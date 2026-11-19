@@ -60,6 +60,12 @@
             div.min-h-\[140px\] { min-height: 210px; }
             div.min-h-\[158px\] { min-height: 230px; }
         }
+        /* Entrada suave al Dashboard (transición desde el login) */
+        @keyframes entradaDashboard {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .anim-entrada { animation: entradaDashboard .45s ease-out both; }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 min-h-screen text-brand-dark dark:text-gray-100 flex flex-col relative transition-colors duration-200">
@@ -109,8 +115,11 @@
                     <span class="font-semibold text-sm text-brand-brown dark:text-gray-300 group-hover:text-brand-orange transition-colors hidden sm:block">
                         {{ Auth::user()->name ?? 'Carlos Rendón' }}
                     </span>
-                    <svg class="w-4 h-4 text-gray-400 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </div>
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" title="Cerrar sesión" class="text-xs font-bold text-gray-400 hover:text-red-500 transition-colors whitespace-nowrap">Salir →</button>
+                </form>
             </div>
 
         </div>
@@ -123,7 +132,7 @@
     </div>
 
     <!-- CONTENIDO DEL DASHBOARD -->
-    <main class="flex-1 p-4 sm:p-6 overflow-y-auto max-w-[1600px] mx-auto w-full">
+    <main class="flex-1 p-4 sm:p-6 overflow-y-auto max-w-[1600px] mx-auto w-full anim-entrada">
 
         <!-- MENSAJES (ej: reporte enviado por correo) -->
         @if(session('success'))
@@ -248,36 +257,82 @@
                     <button onclick="mostrarSubOpciones('scoop')" class="bg-orange-50 dark:bg-brand-orange/10 border border-orange-200 dark:border-brand-orange/30 hover:border-brand-orange hover:bg-orange-100 dark:hover:bg-brand-orange/20 text-brand-orange font-bold py-4 rounded-xl text-lg transition-all shadow-sm flex justify-center items-center gap-2">
                         💪 Scoop (Pre-Entreno)
                     </button>
-                    <button class="bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 font-bold py-4 rounded-xl text-lg cursor-not-allowed flex justify-center items-center gap-2">
-                        🥤 Bebida (Próximamente)
+                    <button onclick="mostrarSubOpciones('bebida')" class="bg-orange-50 dark:bg-brand-orange/10 border border-orange-200 dark:border-brand-orange/30 hover:border-brand-orange hover:bg-orange-100 dark:hover:bg-brand-orange/20 text-brand-orange font-bold py-4 rounded-xl text-lg transition-all shadow-sm flex justify-center items-center gap-2">
+                        🥤 Bebida
                     </button>
-                    <button class="bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 font-bold py-4 rounded-xl text-lg cursor-not-allowed flex justify-center items-center gap-2">
-                        🍫 Snack (Próximamente)
+                    <button onclick="mostrarSubOpciones('snack')" class="bg-orange-50 dark:bg-brand-orange/10 border border-orange-200 dark:border-brand-orange/30 hover:border-brand-orange hover:bg-orange-100 dark:hover:bg-brand-orange/20 text-brand-orange font-bold py-4 rounded-xl text-lg transition-all shadow-sm flex justify-center items-center gap-2">
+                        🍫 Snack
                     </button>
                 </div>
             </div>
 
-            <!-- VISTA 2: OPCIONES DE SCOOP -->
+            <!-- VISTA 2: OPCIONES DE LA CATEGORÍA ELEGIDA -->
             <div id="vistaOpciones" class="p-6 hidden">
                 <button onclick="volverCategorias()" class="text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-brand-orange dark:hover:text-brand-orange mb-4 flex items-center gap-1 transition-colors">
                     ← Volver
                 </button>
-                <h2 class="text-2xl font-black text-brand-dark dark:text-white text-center mb-6">Tipo de Pre-Entreno</h2>
+                <h2 id="tituloOpciones" class="text-2xl font-black text-brand-dark dark:text-white text-center mb-6">Tipo de Pre-Entreno</h2>
                 
                 <div class="grid grid-cols-1 gap-3">
-                    @if(count($suplementos) === 0)
-                        <div class="text-center py-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 text-sm font-medium">
-                            No hay suplementos registrados en la base de datos.<br>
-                            <span class="text-xs">Agrégalos para empezar a vender.</span>
-                        </div>
-                    @else
-                        @foreach ($suplementos as $suplemento)
-                            <button onclick="prepararConfirmacion('{{ $suplemento->nombre }}', {{ $suplemento->precio }})" class="bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 hover:border-brand-orange dark:hover:border-brand-orange hover:bg-orange-50 dark:hover:bg-gray-600 font-bold py-3 px-4 rounded-xl transition-all shadow-sm flex justify-between items-center group">
-                                <span class="text-brand-dark dark:text-gray-200 group-hover:text-brand-orange transition-colors">{{ $suplemento->nombre }}</span>
-                                <span class="text-brand-orange text-xl">${{ number_format($suplemento->precio, 2) }}</span>
-                            </button>
-                        @endforeach
-                    @endif
+                    <div id="opciones-scoop">
+                        @if(count($suplementos) === 0)
+                            <div class="text-center py-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 text-sm font-medium">
+                                No hay suplementos registrados en la base de datos.<br>
+                                <span class="text-xs">Agrégalos para empezar a vender.</span>
+                            </div>
+                        @else
+                            @foreach ($suplementos as $suplemento)
+                                <button onclick="prepararConfirmacion('{{ $suplemento->nombre }}', {{ $suplemento->precio }})" class="w-full bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 hover:border-brand-orange dark:hover:border-brand-orange hover:bg-orange-50 dark:hover:bg-gray-600 font-bold py-3 px-4 rounded-xl transition-all shadow-sm flex justify-between items-center group">
+                                    <span class="text-brand-dark dark:text-gray-200 group-hover:text-brand-orange transition-colors">{{ $suplemento->nombre }}</span>
+                                    <span class="text-brand-orange text-xl">${{ number_format($suplemento->precio, 2) }}</span>
+                                </button>
+                            @endforeach
+                        @endif
+                    </div>
+                    <div id="opciones-bebida" class="hidden">
+                        @if(count($bebidas) === 0)
+                            <div class="text-center py-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 text-sm font-medium">
+                                No hay bebidas registradas en la base de datos.<br>
+                                <span class="text-xs">Agrégalas en Modificaciones → Productos para empezar a vender.</span>
+                            </div>
+                        @else
+                            @foreach ($bebidas as $bebida)
+                                @if($bebida->stock !== null && $bebida->stock < 1)
+                                    <button disabled class="w-full bg-gray-50 dark:bg-gray-700/50 border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 font-bold py-3 px-4 rounded-xl shadow-sm flex justify-between items-center cursor-not-allowed mb-3">
+                                        <span>{{ $bebida->nombre }} — Agotado</span>
+                                        <span class="text-xl">${{ number_format($bebida->precio, 2) }}</span>
+                                    </button>
+                                @else
+                                    <button onclick="prepararConfirmacion('{{ $bebida->nombre }}', {{ $bebida->precio }})" class="w-full bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 hover:border-brand-orange dark:hover:border-brand-orange hover:bg-orange-50 dark:hover:bg-gray-600 font-bold py-3 px-4 rounded-xl transition-all shadow-sm flex justify-between items-center group mb-3">
+                                        <span class="text-brand-dark dark:text-gray-200 group-hover:text-brand-orange transition-colors">{{ $bebida->nombre }}@if($bebida->stock !== null) <span class="text-xs text-gray-400 font-medium">({{ $bebida->stock }} disp.)</span>@endif</span>
+                                        <span class="text-brand-orange text-xl">${{ number_format($bebida->precio, 2) }}</span>
+                                    </button>
+                                @endif
+                            @endforeach
+                        @endif
+                    </div>
+                    <div id="opciones-snack" class="hidden">
+                        @if(count($snacks) === 0)
+                            <div class="text-center py-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 text-sm font-medium">
+                                No hay snacks registrados en la base de datos.<br>
+                                <span class="text-xs">Agrégalos en Modificaciones → Productos para empezar a vender.</span>
+                            </div>
+                        @else
+                            @foreach ($snacks as $snack)
+                                @if($snack->stock !== null && $snack->stock < 1)
+                                    <button disabled class="w-full bg-gray-50 dark:bg-gray-700/50 border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 font-bold py-3 px-4 rounded-xl shadow-sm flex justify-between items-center cursor-not-allowed mb-3">
+                                        <span>{{ $snack->nombre }} — Agotado</span>
+                                        <span class="text-xl">${{ number_format($snack->precio, 2) }}</span>
+                                    </button>
+                                @else
+                                    <button onclick="prepararConfirmacion('{{ $snack->nombre }}', {{ $snack->precio }})" class="w-full bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 hover:border-brand-orange dark:hover:border-brand-orange hover:bg-orange-50 dark:hover:bg-gray-600 font-bold py-3 px-4 rounded-xl transition-all shadow-sm flex justify-between items-center group mb-3">
+                                        <span class="text-brand-dark dark:text-gray-200 group-hover:text-brand-orange transition-colors">{{ $snack->nombre }}@if($snack->stock !== null) <span class="text-xs text-gray-400 font-medium">({{ $snack->stock }} disp.)</span>@endif</span>
+                                        <span class="text-brand-orange text-xl">${{ number_format($snack->precio, 2) }}</span>
+                                    </button>
+                                @endif
+                            @endforeach
+                        @endif
+                    </div>
                 </div>
             </div>
 
@@ -400,6 +455,11 @@
         function mostrarSubOpciones(categoria) {
             vistaCategorias.classList.add('hidden');
             vistaOpciones.classList.remove('hidden');
+            document.getElementById('opciones-scoop').classList.add('hidden');
+            document.getElementById('opciones-bebida').classList.add('hidden');
+            document.getElementById('opciones-snack').classList.add('hidden');
+            document.getElementById('opciones-' + categoria).classList.remove('hidden');
+            document.getElementById('tituloOpciones').innerText = categoria === 'bebida' ? 'Bebidas' : (categoria === 'snack' ? 'Snacks' : 'Tipo de Pre-Entreno');
         }
 
         function volverCategorias() {
@@ -410,7 +470,7 @@
         function prepararConfirmacion(nombre, precio) {
             vistaOpciones.classList.add('hidden');
             vistaConfirmacion.classList.remove('hidden');
-            document.getElementById('textoConfirmacion').innerText = `${nombre} ($${precio}.00)`;
+            document.getElementById('textoConfirmacion').innerText = `${nombre} ($${parseFloat(precio).toFixed(2)})`;
             document.getElementById('inputNombreProducto').value = nombre;
             document.getElementById('inputPrecioProducto').value = precio;
         }

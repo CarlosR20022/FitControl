@@ -25,7 +25,10 @@ class ClienteController extends Controller
             'nombre_completo' => 'required|string|max:255',
             'telefono' => 'nullable|string|max:20',
             'producto_id' => 'required|exists:productos,id',
-            'fecha_registro' => 'required|date',
+            // Al registrar un cliente nuevo la fecha de ingreso es hoy o
+            // una fecha futura; las fechas pasadas se corrigen después en
+            // Modificaciones > Clientes, no al registrar.
+            'fecha_registro' => 'required|date|after_or_equal:today',
         ]);
 
         // 0. Si ya existe un cliente con ese mismo nombre completo, no lo
@@ -35,23 +38,19 @@ class ClienteController extends Controller
         $existente = Cliente::whereRaw('LOWER(nombre_completo) = ?', [mb_strtolower($nombreNormalizado)])->first();
 
         if ($existente && !$request->boolean('forzar')) {
+            // Se pasa como arreglo simple (no el modelo completo), para que
+            // la vista lo lea igual siempre y no falle al mostrar el aviso.
             return redirect()->back()
                 ->withInput()
-                ->with('duplicado', $existente);
+                ->with('duplicado', $existente->only(['id', 'nombre_completo', 'fecha_vencimiento']));
         }
 
         // 1. Obtener el producto/plan elegido y la fecha
         $producto = Producto::findOrFail($request->producto_id);
         $fechaIngreso = Carbon::parse($request->fecha_registro);
-        $fechaVencimiento = $fechaIngreso->copy();
 
-        // 2. Calcular fecha de vencimiento basándonos en el nombre del plan
-        $nombrePlan = strtolower($producto->nombre);
-        if (str_contains($nombrePlan, 'mes')) {
-            $fechaVencimiento->addMonth(); // Suma 1 mes
-        } elseif (str_contains($nombrePlan, 'semana')) {
-            $fechaVencimiento->addDays(7); // Suma 1 semana
-        }
+        // 2. Fecha de vencimiento según la duración del plan
+        $fechaVencimiento = $producto->calcularVencimiento($fechaIngreso);
 
         // 3. Crear Cliente
         $cliente = Cliente::create([
@@ -72,8 +71,103 @@ class ClienteController extends Controller
             'fecha_pago' => $fechaIngreso
         ]);
 
-        return redirect('/');
+        return redirect('/')->with('success', 'Cliente ' . $cliente->nombre_completo . ' registrado.');
     }
+
+    // --- Módulo Clientes (Modificaciones): corregir los datos de un cliente ---
+    // Lista con buscador por nombre
+    public function adminIndex(Request $request)
+    {
+        $q = trim($request->get('q', ''));
+        $clientes = Cliente::when($q, fn ($query) => $query->where('nombre_completo', 'like', '%' . $q . '%'))
+            ->orderBy('nombre_completo')
+            ->get();
+
+        // Último pago de cada cliente, para mostrar su plan actual
+        $ultimosPagos = Pago::with('producto')
+            ->whereIn('cliente_id', $clientes->pluck('id'))
+            ->orderBy('fecha_pago', 'desc')
+            ->orderBy('id', 'desc')
+            ->get()
+            ->groupBy('cliente_id')
+            ->map(fn ($pagos) => $pagos->first());
+
+        return view('modificaciones.clientes.index', compact('clientes', 'ultimosPagos', 'q'));
+    }
+
+    // Formulario para corregir los datos de un cliente
+    public function adminEdit($id)
+    {
+        $cliente = Cliente::findOrFail($id);
+        $planes = Producto::whereIn('categoria', ['membresia', 'visita'])->get();
+        $ultimoPago = Pago::where('cliente_id', $id)
+            ->orderBy('fecha_pago', 'desc')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        return view('modificaciones.clientes.form', compact('cliente', 'planes', 'ultimoPago'));
+    }
+
+    // Guarda los datos corregidos y ajusta el último pago y el vencimiento
+    public function adminUpdate(Request $request, $id)
+    {
+        $cliente = Cliente::findOrFail($id);
+
+        $request->validate([
+            'nombre_completo' => 'required|string|max:255',
+            'telefono' => 'nullable|string|max:20',
+            'producto_id' => 'required|exists:productos,id',
+            'fecha_registro' => 'required|date',
+        ]);
+
+        // El nombre no puede quedar igual al de otro cliente
+        $nombreNormalizado = trim(preg_replace('/\s+/', ' ', $request->nombre_completo));
+        $otro = Cliente::whereRaw('LOWER(nombre_completo) = ?', [mb_strtolower($nombreNormalizado)])
+            ->where('id', '!=', $id)
+            ->first();
+        if ($otro) {
+            return back()->withInput()->withErrors(['nombre_completo' => 'Ya existe otro cliente con ese nombre.']);
+        }
+
+        $producto = Producto::findOrFail($request->producto_id);
+        $fechaIngreso = Carbon::parse($request->fecha_registro);
+
+        // Último pago: es el que se corrige (plan y precio). Su fecha solo se
+        // mueve si ese pago es el de registro; si el cliente ya renovó antes,
+        // la fecha de ese pago no se toca.
+        $pago = Pago::where('cliente_id', $id)
+            ->orderBy('fecha_pago', 'desc')
+            ->orderBy('id', 'desc')
+            ->first();
+        $esPagoRegistro = $pago && $pago->fecha_pago === $cliente->fecha_registro;
+
+        $base = $fechaIngreso->copy();
+        if ($pago) {
+            $pago->producto_id = $producto->id;
+            $pago->total = $producto->precio;
+            if ($esPagoRegistro) {
+                $pago->fecha_pago = $fechaIngreso;
+            } else {
+                $base = Carbon::parse($pago->fecha_pago);
+            }
+            $pago->save();
+        }
+
+        // Nueva fecha de vencimiento según el plan corregido
+        $fechaVencimiento = $producto->calcularVencimiento($base);
+
+        $cliente->update([
+            'nombre_completo' => $request->nombre_completo,
+            'telefono' => $request->telefono,
+            'fecha_registro' => $fechaIngreso,
+            'fecha_vencimiento' => $fechaVencimiento,
+            'estado' => $fechaVencimiento->gte(Carbon::today()) ? 'activo' : 'vencido',
+        ]);
+
+        return redirect()->route('modificaciones.clientes')
+            ->with('exito', 'Datos de ' . $cliente->nombre_completo . ' actualizados.');
+    }
+
     // Lista de socios vigentes
     public function vigentes()
     {

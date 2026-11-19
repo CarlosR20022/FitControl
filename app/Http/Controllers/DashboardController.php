@@ -50,12 +50,14 @@ class DashboardController extends Controller
 
         // 5. Catálogo para el Modal de Ventas Rápidas
         $suplementos = Producto::where('categoria', 'suplemento')->get();
+        $bebidas = Producto::where('categoria', 'bebida')->get();
+        $snacks = Producto::where('categoria', 'snack')->get();
 
         return view('welcome', compact(
             'sociosVigentes', 'porVencer', 'vencidosRecientes', 
             'totalHistorico', 'nuevosMes', 'bajasMes', 
             'ingresosDia', 'productosPorAgotarse',
-            'suplementos'
+            'suplementos', 'bebidas', 'snacks'
         ));
     }
 

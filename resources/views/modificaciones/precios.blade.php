@@ -80,6 +80,10 @@
             </div>
         </div>
 
+        @if(session('success'))
+            <div class="bg-green-100 dark:bg-green-500/20 border border-green-200 dark:border-green-500/30 text-green-700 dark:text-green-400 font-bold px-4 py-3 rounded-xl mb-4">{{ session('success') }}</div>
+        @endif
+
 
         <!-- LISTA DE PRODUCTOS -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

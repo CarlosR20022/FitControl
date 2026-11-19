@@ -100,7 +100,6 @@
                     <span class="font-semibold text-sm text-brand-brown dark:text-gray-300 group-hover:text-brand-orange transition-colors hidden sm:block">
                         {{ Auth::user()->name ?? 'Carlos Rendón' }}
                     </span>
-                    <svg class="w-4 h-4 text-gray-400 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </div>
             </div>
 
@@ -142,13 +141,13 @@
                     <div class="bg-orange-50 dark:bg-brand-orange/10 border border-orange-200 dark:border-brand-orange/30 rounded-xl p-4">
                         <p class="font-black text-brand-orange">⚠️ ¡Ups! Este cliente ya está registrado.</p>
                         <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                            {{ $dup->nombre_completo }} ya existe en el sistema
-                            (vencimiento: {{ \Carbon\Carbon::parse($dup->fecha_vencimiento)->format('d/m/Y') }} —
-                            {{ \Carbon\Carbon::parse($dup->fecha_vencimiento)->gte(\Carbon\Carbon::today()) ? 'Activo' : 'Vencido' }}).
+                            {{ $dup['nombre_completo'] }} ya existe en el sistema
+                            (vencimiento: {{ \Carbon\Carbon::parse($dup['fecha_vencimiento'])->format('d/m/Y') }} —
+                            {{ \Carbon\Carbon::parse($dup['fecha_vencimiento'])->gte(\Carbon\Carbon::today()) ? 'Activo' : 'Vencido' }}).
                             ¿Deseas renovar su membresía en lugar de registrarlo de nuevo?
                         </p>
                         <div class="flex gap-2 mt-3">
-                            <a href="{{ route('renovaciones.create', $dup->id) }}" class="flex-1 bg-brand-orange hover:bg-brand-gold text-white font-bold py-2.5 rounded-lg text-center transition-all text-sm">🔄 Sí, renovar membresía</a>
+                            <a href="{{ route('renovaciones.create', $dup['id']) }}" class="flex-1 bg-brand-orange hover:bg-brand-gold text-white font-bold py-2.5 rounded-lg text-center transition-all text-sm">🔄 Sí, renovar membresía</a>
                             <button type="submit" name="forzar" value="1" class="flex-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-bold py-2.5 rounded-lg transition-colors text-sm">Registrar de todos modos</button>
                         </div>
                     </div>
@@ -184,7 +183,7 @@
                 <!-- Fecha de Registro/Pago -->
                 <div class="flex flex-col gap-1.5">
                     <label class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase">Fecha de Ingreso <span class="text-red-500">*</span></label>
-                    <input type="date" name="fecha_registro" required
+                    <input type="date" name="fecha_registro" required min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}"
                            value="{{ old('fecha_registro', \Carbon\Carbon::now()->format('Y-m-d')) }}"
                            class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-orange dark:focus:border-brand-orange focus:ring-2 focus:ring-orange-100 dark:focus:ring-brand-orange/30 transition-all font-medium text-brand-dark dark:text-white cursor-pointer" style="color-scheme: dark;">
                 </div>

@@ -79,19 +79,19 @@
         <p class="text-gray-500 dark:text-gray-400 font-medium mb-8">Selecciona el módulo que deseas configurar.</p>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <!-- Botón Clientes (Próximamente) -->
-            <button class="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl p-6 text-left opacity-60 cursor-not-allowed">
+            <!-- Botón Clientes -->
+            <a href="{{ route('modificaciones.clientes') }}" class="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl p-6 text-left hover:border-brand-orange dark:hover:border-brand-orange transition-all hover:shadow-md block">
                 <span class="text-4xl mb-4 block">👥</span>
-                <h2 class="text-xl font-bold text-brand-dark dark:text-white">Clientes</h2>
-                <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Gestión de datos personales (Próximamente)</p>
-            </button>
+                <h2 class="text-xl font-bold text-brand-orange">Clientes</h2>
+                <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Corrige los datos de un cliente: nombre, teléfono, plan y fecha de ingreso.</p>
+            </a>
 
-            <!-- Botón Usuarios (Próximamente) -->
-            <button class="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl p-6 text-left opacity-60 cursor-not-allowed">
+            <!-- Botón Usuarios -->
+            <a href="{{ route('modificaciones.usuarios') }}" class="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl p-6 text-left hover:border-brand-orange dark:hover:border-brand-orange transition-all hover:shadow-md block">
                 <span class="text-4xl mb-4 block">🛡️</span>
-                <h2 class="text-xl font-bold text-brand-dark dark:text-white">Usuarios</h2>
-                <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Gestión de cuentas de administradores (Próximamente)</p>
-            </button>
+                <h2 class="text-xl font-bold text-brand-orange">Usuarios</h2>
+                <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Cuentas de administradores: agrega usuarios con su ID y corrige su nombre.</p>
+            </a>
 
             <!-- Botón PRODUCTOS (Activo) -->
             <a href="{{ route('productos.index') }}" class="bg-white dark:bg-gray-800 border-2 border-transparent hover:border-brand-orange dark:hover:border-brand-orange rounded-2xl p-6 text-left shadow-md hover:shadow-lg transition-all group">
