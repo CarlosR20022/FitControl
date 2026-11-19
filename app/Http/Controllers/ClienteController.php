@@ -28,6 +28,18 @@ class ClienteController extends Controller
             'fecha_registro' => 'required|date',
         ]);
 
+        // 0. Si ya existe un cliente con ese mismo nombre completo, no lo
+        //    duplicamos: se le avisa y se le ofrece renovar su membresía.
+        //    (Se compara sin importar mayúsculas/minúsculas ni espacios extra.)
+        $nombreNormalizado = trim(preg_replace('/\s+/', ' ', $request->nombre_completo));
+        $existente = Cliente::whereRaw('LOWER(nombre_completo) = ?', [mb_strtolower($nombreNormalizado)])->first();
+
+        if ($existente && !$request->boolean('forzar')) {
+            return redirect()->back()
+                ->withInput()
+                ->with('duplicado', $existente);
+        }
+
         // 1. Obtener el producto/plan elegido y la fecha
         $producto = Producto::findOrFail($request->producto_id);
         $fechaIngreso = Carbon::parse($request->fecha_registro);

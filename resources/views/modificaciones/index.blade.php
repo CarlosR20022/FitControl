@@ -93,12 +93,12 @@
                 <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Gestión de cuentas de administradores (Próximamente)</p>
             </button>
 
-            <!-- Botón Productos (Próximamente) -->
-            <button class="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl p-6 text-left opacity-60 cursor-not-allowed">
-                <span class="text-4xl mb-4 block">📦</span>
-                <h2 class="text-xl font-bold text-brand-dark dark:text-white">Productos</h2>
-                <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Agregar o eliminar artículos del inventario (Próximamente)</p>
-            </button>
+            <!-- Botón PRODUCTOS (Activo) -->
+            <a href="{{ route('productos.index') }}" class="bg-white dark:bg-gray-800 border-2 border-transparent hover:border-brand-orange dark:hover:border-brand-orange rounded-2xl p-6 text-left shadow-md hover:shadow-lg transition-all group">
+                <span class="text-4xl mb-4 block group-hover:scale-110 transition-transform w-max">📦</span>
+                <h2 class="text-xl font-bold text-brand-orange">Productos</h2>
+                <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Agrega productos nuevos con su precio y stock.</p>
+            </a>
 
             <!-- Botón PRECIOS (Activo) -->
             <a href="{{ route('modificaciones.precios') }}" class="bg-white dark:bg-gray-800 border-2 border-transparent hover:border-brand-orange dark:hover:border-brand-orange rounded-2xl p-6 text-left shadow-md hover:shadow-lg transition-all group">

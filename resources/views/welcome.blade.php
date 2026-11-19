@@ -81,12 +81,15 @@
                 <a href="{{ route('clientes.create') }}" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-brand-dark dark:text-gray-300 hover:text-brand-orange dark:hover:text-brand-orange hover:bg-orange-50 dark:hover:bg-gray-700 transition-colors">
                     + Agregar Nuevo Cliente
                 </a>
-                <a href="{{ route('clientes.consulta') }}" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-brand-dark dark:text-gray-300 hover:text-brand-orange dark:hover:text-brand-orange hover:bg-orange-50 dark:hover:bg-gray-700 transition-colors">
-                    🔍 Consulta
-                </a>
-                <a href="{{ route('modificaciones.index') }}" class="...">✏️ Modificaciones</a>
+                <button onclick="toggleMenuConsulta(event)" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-brand-dark dark:text-gray-300 hover:text-brand-orange dark:hover:text-brand-orange hover:bg-orange-50 dark:hover:bg-gray-700 transition-colors cursor-pointer">
+                    🔍 Consulta ▾
+                </button>
+                <a href="{{ route('modificaciones.index') }}" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-brand-dark dark:text-gray-300 hover:text-brand-orange dark:hover:text-brand-orange hover:bg-orange-50 dark:hover:bg-gray-700 transition-colors">✏️ Modificaciones</a>
                 
-                <button onclick="abrirModalVenta()" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-white bg-brand-orange shadow-[0_4px_10px_rgba(255,160,0,0.3)] hover:bg-brand-gold hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer">
+                <button onclick="abrirModalReporte()" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-white bg-red-500 hover:bg-red-600 shadow-sm transition-colors cursor-pointer">
+                    📊 Generar Reporte
+                </button>
+                <button onclick="abrirModalVenta()"  class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-white bg-brand-orange shadow-[0_4px_10px_rgba(255,160,0,0.3)] hover:bg-brand-gold hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer">
                     💵 Venta
                 </button>
             </nav>
@@ -113,18 +116,22 @@
         </div>
     </header>
 
-    <!-- ÁREA DE FILTROS / ACCIONES RÁPIDAS -->
-    <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-3 transition-colors duration-200">
-        <div class="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center gap-3">
-            <input type="date" class="w-full sm:w-auto bg-transparent border border-gray-300 dark:border-gray-600 rounded px-3 py-1.5 text-sm font-medium text-brand-dark dark:text-gray-200 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange">
-            <button onclick="abrirModalReporte()" class="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white text-sm font-bold px-4 py-1.5 rounded shadow-sm transition-colors">
-                Generar Reporte
-            </button>
-        </div>
+    <!-- MENÚ DESPLEGABLE DE CONSULTA (posición fija para que no lo recorte el menú) -->
+    <div id="menuConsulta" class="hidden fixed z-[100] w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+        <a href="{{ route('clientes.consulta') }}" class="block px-4 py-2 text-sm font-bold text-brand-dark dark:text-gray-200 hover:bg-orange-50 dark:hover:bg-gray-700 hover:text-brand-orange">👤 Consulta de cliente</a>
+        <a href="{{ route('consulta.stock') }}" class="block px-4 py-2 text-sm font-bold text-brand-dark dark:text-gray-200 hover:bg-orange-50 dark:hover:bg-gray-700 hover:text-brand-orange">📦 Consulta de stock</a>
     </div>
 
     <!-- CONTENIDO DEL DASHBOARD -->
     <main class="flex-1 p-4 sm:p-6 overflow-y-auto max-w-[1600px] mx-auto w-full">
+
+        <!-- MENSAJES (ej: reporte enviado por correo) -->
+        @if(session('success'))
+            <div class="bg-green-100 dark:bg-green-500/20 border border-green-200 dark:border-green-500/30 text-green-700 dark:text-green-400 font-bold px-4 py-3 rounded-xl mb-4">{{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+            <div class="bg-red-100 dark:bg-red-500/20 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400 font-bold px-4 py-3 rounded-xl mb-4">{{ session('error') }}</div>
+        @endif
         
         <!-- FILA 1: TARJETAS DE COLORES -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -213,13 +220,13 @@
                 <div class="absolute inset-0 opacity-10 bg-gradient-to-r from-brand-orange to-transparent"></div>
                 <div class="relative z-10">
                     <div class="flex items-center gap-2 mb-1">
-                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Renovaciones Próximas</span>
+                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Productos por agotarse</span>
                     </div>
-                    <span class="text-4xl font-light text-brand-dark dark:text-white">{{ $renovacionesProximas ?? 0 }} <span class="text-base text-gray-400">PAGOS</span></span>
-                    <a href="{{ route('clientes.porVencer') }}" class="block mt-2 text-xs font-bold text-red-500 hover:text-red-600 transition-colors">Ver Detalles ></a>
+                    <span class="text-4xl font-light text-brand-dark dark:text-white">{{ $productosPorAgotarse ?? 0 }} <span class="text-base text-gray-400">PRODUCTOS</span></span>
+                    <a href="{{ route('consulta.stock', ['bajo' => 1]) }}" class="block mt-2 text-xs font-bold text-red-500 hover:text-red-600 transition-colors">Ver Detalles ></a>
                 </div>
                 <div class="relative z-10 bg-gray-50 dark:bg-gray-700 p-4 rounded-xl border border-gray-100 dark:border-gray-600 transition-colors">
-                    <span class="text-3xl">📅</span>
+                    <span class="text-3xl">📦</span>
                 </div>
             </div>
         </div>
@@ -318,6 +325,7 @@
                     <button type="button" onclick="setRango('mes')" class="bg-orange-50 dark:bg-brand-orange/10 border border-orange-200 dark:border-brand-orange/30 hover:border-brand-orange text-brand-orange font-bold py-2 rounded-xl text-sm transition-all">Mes</button>
                 </div>
                 <form action="{{ route('reporte.pdf') }}" method="GET" target="_blank">
+                    @csrf
                     <div class="grid grid-cols-2 gap-3 mb-5">
                         <div>
                             <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Desde</label>
@@ -329,9 +337,18 @@
                         </div>
                     </div>
                     <p class="text-xs text-gray-500 dark:text-gray-400 mb-5">El PDF incluye: clientes nuevos, socios vencidos, próximos a vencer con sus fechas, total de socios, bajas, ingresos por día y total del periodo, y próximas renovaciones.</p>
+                    <div id="campoCorreo" class="hidden mb-4">
+                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Correo del destinatario</label>
+                        <input type="email" id="inputCorreo" name="correo" placeholder="ejemplo@correo.com" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm font-medium text-brand-dark dark:text-gray-200 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange">
+                    </div>
                     <div class="flex gap-3">
                         <button type="button" onclick="cerrarModalReporte()" class="w-1/2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-bold py-3 rounded-xl transition-colors">Cancelar</button>
                         <button type="submit" class="w-1/2 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl shadow-md transition-all">⬇ Descargar PDF</button>
+                    </div>
+                    <button type="button" id="btnMandarCorreo" onclick="mostrarCampoCorreo()" class="w-full mt-3 bg-orange-50 dark:bg-brand-orange/10 border border-orange-200 dark:border-brand-orange/30 hover:border-brand-orange text-brand-orange font-bold py-3 rounded-xl text-sm transition-all">✉️ Mandar por correo</button>
+                    <div id="accionesCorreo" class="hidden mt-3 gap-3">
+                        <button type="button" onclick="ocultarCampoCorreo()" class="w-1/2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-bold py-3 rounded-xl transition-colors">Volver</button>
+                        <button type="submit" formaction="{{ route('reporte.enviar') }}" formmethod="post" formtarget="_self" class="w-1/2 bg-brand-orange hover:bg-brand-gold text-white font-bold py-3 rounded-xl shadow-md transition-all">📧 Enviar correo</button>
                     </div>
                 </form>
             </div>
@@ -407,12 +424,55 @@
         const reporteOverlay = document.getElementById('reporteModalOverlay');
 
         function abrirModalReporte() {
+            ocultarCampoCorreo();
             reporteOverlay.classList.remove('hidden');
+        }
+
+        // Muestra el campo para escribir el correo del destinatario
+        function mostrarCampoCorreo() {
+            document.getElementById('campoCorreo').classList.remove('hidden');
+            const acciones = document.getElementById('accionesCorreo');
+            acciones.classList.remove('hidden');
+            acciones.classList.add('flex');
+            document.getElementById('btnMandarCorreo').classList.add('hidden');
+            const input = document.getElementById('inputCorreo');
+            input.required = true;
+            input.focus();
+        }
+
+        function ocultarCampoCorreo() {
+            const campo = document.getElementById('campoCorreo');
+            if (!campo) return;
+            campo.classList.add('hidden');
+            const acciones = document.getElementById('accionesCorreo');
+            acciones.classList.add('hidden');
+            acciones.classList.remove('flex');
+            document.getElementById('btnMandarCorreo').classList.remove('hidden');
+            const input = document.getElementById('inputCorreo');
+            input.required = false;
+            input.value = '';
         }
 
         function cerrarModalReporte() {
             reporteOverlay.classList.add('hidden');
         }
+
+        // --- LOGICA DEL MENÚ DESPLEGABLE DE CONSULTA ---
+        function toggleMenuConsulta(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('menuConsulta');
+            const r = e.currentTarget.getBoundingClientRect();
+            menu.style.top = (r.bottom + 6) + 'px';
+            menu.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 232)) + 'px';
+            menu.classList.toggle('hidden');
+        }
+
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('menuConsulta');
+            if (menu && !menu.classList.contains('hidden') && !e.target.closest('#menuConsulta')) {
+                menu.classList.add('hidden');
+            }
+        });
 
         function fechaLocal(d) {
             const y = d.getFullYear();

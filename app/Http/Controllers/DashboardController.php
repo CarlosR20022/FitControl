@@ -29,15 +29,20 @@ class DashboardController extends Controller
 
         // 3. Finanzas
         $ingresosDia = Pago::whereDate('fecha_pago', $hoy)->sum('total');
-        $renovacionesProximas = $porVencer;
 
-        // 4. Catálogo para el Modal de Ventas Rápidas
+        // 4. Productos por agotarse (stock menor a 3, sin membresías, visitas ni scoops)
+        $productosPorAgotarse = Producto::conStock()
+            ->whereNotNull('stock')
+            ->where('stock', '<', 3)
+            ->count();
+
+        // 5. Catálogo para el Modal de Ventas Rápidas
         $suplementos = Producto::where('categoria', 'suplemento')->get();
 
         return view('welcome', compact(
             'sociosVigentes', 'porVencer', 'vencidosRecientes', 
             'totalHistorico', 'nuevosMes', 'bajasMes', 
-            'ingresosDia', 'renovacionesProximas',
+            'ingresosDia', 'productosPorAgotarse',
             'suplementos'
         ));
     }

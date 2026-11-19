@@ -73,7 +73,7 @@
                     + Agregar Nuevo Cliente
                 </a>
                 <a href="{{ route('clientes.consulta') }}" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-brand-dark dark:text-gray-300 hover:text-brand-orange dark:hover:text-brand-orange hover:bg-orange-50 dark:hover:bg-gray-700 transition-colors">🔍 Consulta</a>
-                <a href="{{ route('modificaciones.index') }}" class="...">✏️ Modificaciones</a>
+                <a href="{{ route('modificaciones.index') }}" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-brand-dark dark:text-gray-300 hover:text-brand-orange dark:hover:text-brand-orange hover:bg-orange-50 dark:hover:bg-gray-700 transition-colors">✏️ Modificaciones</a>
                 <a href="/" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-white bg-brand-orange shadow-[0_4px_10px_rgba(255,160,0,0.3)] hover:bg-brand-gold transition-all">💵 Venta</a>
             </nav>
 
@@ -150,7 +150,7 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <button class="text-brand-orange dark:text-brand-orange hover:text-brand-gold font-bold text-sm underline">Renovar</button>
+                                    <a href="{{ route('renovaciones.create', $cliente->id) }}" class="text-brand-orange dark:text-brand-orange hover:text-brand-gold font-bold text-sm underline">Renovar</a>
                                 </td>
                             </tr>
                             @endforeach

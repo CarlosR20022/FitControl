@@ -77,7 +77,7 @@
                 <a href="{{ route('clientes.consulta') }}" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-brand-dark dark:text-gray-300 hover:text-brand-orange dark:hover:text-brand-orange hover:bg-orange-50 dark:hover:bg-gray-700 transition-colors">
                     🔍 Consulta
                 </a>
-                <a href="{{ route('modificaciones.index') }}" class="...">✏️ Modificaciones</a>
+                <a href="{{ route('modificaciones.index') }}" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-brand-dark dark:text-gray-300 hover:text-brand-orange dark:hover:text-brand-orange hover:bg-orange-50 dark:hover:bg-gray-700 transition-colors">✏️ Modificaciones</a>
                 
                 <!-- El botón de Venta te regresa al dashboard para abrir el modal -->
                 <a href="/" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-white bg-brand-orange shadow-[0_4px_10px_rgba(255,160,0,0.3)] hover:bg-brand-gold hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer">
@@ -139,6 +139,7 @@
                             <th class="px-6 py-4 font-bold">Fecha de Ingreso</th>
                             <th class="px-6 py-4 font-bold">Fecha de Vencimiento</th>
                             <th class="px-6 py-4 font-bold text-center">Estado</th>
+                            <th class="px-6 py-4 font-bold text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -159,10 +160,13 @@
                                     Vencido
                                 </span>
                             </td>
+                            <td class="px-6 py-4 text-center">
+                                <a href="{{ route('renovaciones.create', $cliente->id) }}" class="bg-gray-100 dark:bg-gray-700 hover:bg-orange-100 dark:hover:bg-brand-orange/20 text-gray-700 dark:text-gray-300 hover:text-brand-orange font-bold py-1.5 px-3 rounded-lg transition-colors border border-gray-200 dark:border-gray-600 text-sm">🔄 Renovar</a>
+                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-12 text-center">
+                            <td colspan="6" class="px-6 py-12 text-center">
                                 <div class="flex flex-col items-center justify-center">
                                     <svg class="w-12 h-12 text-gray-300 dark:text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                                     <p class="text-gray-500 dark:text-gray-400 font-medium text-lg">No hay bajas este mes.</p>

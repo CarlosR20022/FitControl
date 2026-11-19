@@ -77,7 +77,7 @@
                 <a href="{{ route('clientes.consulta') }}" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-brand-dark dark:text-gray-300 hover:text-brand-orange dark:hover:text-brand-orange hover:bg-orange-50 dark:hover:bg-gray-700 transition-colors">
                     🔍 Consulta
                 </a>
-                <a href="{{ route('modificaciones.index') }}" class="...">✏️ Modificaciones</a>
+                <a href="{{ route('modificaciones.index') }}" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-brand-dark dark:text-gray-300 hover:text-brand-orange dark:hover:text-brand-orange hover:bg-orange-50 dark:hover:bg-gray-700 transition-colors">✏️ Modificaciones</a>
                 
                 <!-- El botón de Venta aquí te regresa al dashboard para abrir el modal -->
                 <a href="/" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-white bg-brand-orange shadow-[0_4px_10px_rgba(255,160,0,0.3)] hover:bg-brand-gold hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer">
@@ -127,17 +127,44 @@
             <form action="{{ route('clientes.store') }}" method="POST" class="p-8 flex flex-col gap-5">
                 @csrf
 
+                @if($errors->any())
+                    <div class="bg-red-100 dark:bg-red-500/20 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400 font-bold px-4 py-3 rounded-xl text-sm">
+                        <ul class="list-disc list-inside">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                @if(session('duplicado'))
+                    @php $dup = session('duplicado'); @endphp
+                    <div class="bg-orange-50 dark:bg-brand-orange/10 border border-orange-200 dark:border-brand-orange/30 rounded-xl p-4">
+                        <p class="font-black text-brand-orange">⚠️ ¡Ups! Este cliente ya está registrado.</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                            {{ $dup->nombre_completo }} ya existe en el sistema
+                            (vencimiento: {{ \Carbon\Carbon::parse($dup->fecha_vencimiento)->format('d/m/Y') }} —
+                            {{ \Carbon\Carbon::parse($dup->fecha_vencimiento)->gte(\Carbon\Carbon::today()) ? 'Activo' : 'Vencido' }}).
+                            ¿Deseas renovar su membresía en lugar de registrarlo de nuevo?
+                        </p>
+                        <div class="flex gap-2 mt-3">
+                            <a href="{{ route('renovaciones.create', $dup->id) }}" class="flex-1 bg-brand-orange hover:bg-brand-gold text-white font-bold py-2.5 rounded-lg text-center transition-all text-sm">🔄 Sí, renovar membresía</a>
+                            <button type="submit" name="forzar" value="1" class="flex-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-bold py-2.5 rounded-lg transition-colors text-sm">Registrar de todos modos</button>
+                        </div>
+                    </div>
+                @endif
+
                 <!-- Nombre Completo -->
                 <div class="flex flex-col gap-1.5">
                     <label class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase">Nombre Completo <span class="text-red-500">*</span></label>
-                    <input type="text" name="nombre_completo" required placeholder="Ej. Juan Pérez" 
+                    <input type="text" name="nombre_completo" value="{{ old('nombre_completo') }}" required placeholder="Ej. Juan Pérez" 
                            class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-orange dark:focus:border-brand-orange focus:ring-2 focus:ring-orange-100 dark:focus:ring-brand-orange/30 transition-all font-medium text-brand-dark dark:text-white placeholder-gray-400 dark:placeholder-gray-500">
                 </div>
 
                 <!-- Teléfono -->
                 <div class="flex flex-col gap-1.5">
                     <label class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase">Teléfono (Opcional)</label>
-                    <input type="tel" name="telefono" placeholder="Ej. 998 123 4567" 
+                    <input type="tel" name="telefono" value="{{ old('telefono') }}" placeholder="Ej. 998 123 4567" 
                            class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-orange dark:focus:border-brand-orange focus:ring-2 focus:ring-orange-100 dark:focus:ring-brand-orange/30 transition-all font-medium text-brand-dark dark:text-white placeholder-gray-400 dark:placeholder-gray-500">
                 </div>
 
@@ -147,7 +174,7 @@
                     <select name="producto_id" id="planSelect" required onchange="actualizarPrecio()"
                             class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-orange dark:focus:border-brand-orange focus:ring-2 focus:ring-orange-100 dark:focus:ring-brand-orange/30 transition-all font-medium text-brand-dark dark:text-white cursor-pointer">
                         @foreach($planes as $plan)
-                            <option value="{{ $plan->id }}" data-precio="{{ $plan->precio }}" class="dark:bg-gray-800">
+                            <option value="{{ $plan->id }}" data-precio="{{ $plan->precio }}" {{ old('producto_id') == $plan->id ? 'selected' : '' }} class="dark:bg-gray-800">
                                 {{ $plan->nombre }}
                             </option>
                         @endforeach
@@ -158,7 +185,7 @@
                 <div class="flex flex-col gap-1.5">
                     <label class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase">Fecha de Ingreso <span class="text-red-500">*</span></label>
                     <input type="date" name="fecha_registro" required
-                           value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}"
+                           value="{{ old('fecha_registro', \Carbon\Carbon::now()->format('Y-m-d')) }}"
                            class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-orange dark:focus:border-brand-orange focus:ring-2 focus:ring-orange-100 dark:focus:ring-brand-orange/30 transition-all font-medium text-brand-dark dark:text-white cursor-pointer" style="color-scheme: dark;">
                 </div>
 
