@@ -24,6 +24,36 @@
             document.documentElement.classList.remove('dark');
         }
     </script>
+    <style>
+        /* Diseño adaptable: en pantallas grandes (MacBook Pro, monitores) todo el sistema crece proporcionalmente, como en una laptop normal */
+        @media (min-width: 1440px) {
+            html { font-size: 17px; }
+            div.max-w-\[1600px\], main.max-w-\[1600px\] { max-width: 1900px; }
+            main.max-w-\[1200px\] { max-width: 1500px; }
+            main.max-w-\[1000px\] { max-width: 1300px; }
+            a.min-h-\[164px\] { min-height: 205px; }
+            div.min-h-\[140px\] { min-height: 175px; }
+            div.min-h-\[158px\] { min-height: 195px; }
+        }
+        @media (min-width: 1800px) {
+            html { font-size: 18px; }
+            div.max-w-\[1600px\], main.max-w-\[1600px\] { max-width: 2100px; }
+            main.max-w-\[1200px\] { max-width: 1650px; }
+            main.max-w-\[1000px\] { max-width: 1450px; }
+            a.min-h-\[164px\] { min-height: 220px; }
+            div.min-h-\[140px\] { min-height: 190px; }
+            div.min-h-\[158px\] { min-height: 210px; }
+        }
+        @media (min-width: 2200px) {
+            html { font-size: 20px; }
+            div.max-w-\[1600px\], main.max-w-\[1600px\] { max-width: 2400px; }
+            main.max-w-\[1200px\] { max-width: 1850px; }
+            main.max-w-\[1000px\] { max-width: 1600px; }
+            a.min-h-\[164px\] { min-height: 245px; }
+            div.min-h-\[140px\] { min-height: 210px; }
+            div.min-h-\[158px\] { min-height: 230px; }
+        }
+    </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 min-h-screen text-brand-dark dark:text-gray-100 flex flex-col transition-colors duration-200">
 

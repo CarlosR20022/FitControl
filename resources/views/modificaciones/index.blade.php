@@ -13,6 +13,36 @@
         }
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.classList.add('dark'); } else { document.documentElement.classList.remove('dark'); }
     </script>
+    <style>
+        /* Diseño adaptable: en pantallas grandes (MacBook Pro, monitores) todo el sistema crece proporcionalmente, como en una laptop normal */
+        @media (min-width: 1440px) {
+            html { font-size: 17px; }
+            div.max-w-\[1600px\], main.max-w-\[1600px\] { max-width: 1900px; }
+            main.max-w-\[1200px\] { max-width: 1500px; }
+            main.max-w-\[1000px\] { max-width: 1300px; }
+            a.min-h-\[164px\] { min-height: 205px; }
+            div.min-h-\[140px\] { min-height: 175px; }
+            div.min-h-\[158px\] { min-height: 195px; }
+        }
+        @media (min-width: 1800px) {
+            html { font-size: 18px; }
+            div.max-w-\[1600px\], main.max-w-\[1600px\] { max-width: 2100px; }
+            main.max-w-\[1200px\] { max-width: 1650px; }
+            main.max-w-\[1000px\] { max-width: 1450px; }
+            a.min-h-\[164px\] { min-height: 220px; }
+            div.min-h-\[140px\] { min-height: 190px; }
+            div.min-h-\[158px\] { min-height: 210px; }
+        }
+        @media (min-width: 2200px) {
+            html { font-size: 20px; }
+            div.max-w-\[1600px\], main.max-w-\[1600px\] { max-width: 2400px; }
+            main.max-w-\[1200px\] { max-width: 1850px; }
+            main.max-w-\[1000px\] { max-width: 1600px; }
+            a.min-h-\[164px\] { min-height: 245px; }
+            div.min-h-\[140px\] { min-height: 210px; }
+            div.min-h-\[158px\] { min-height: 230px; }
+        }
+    </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 min-h-screen text-brand-dark dark:text-gray-100 flex flex-col transition-colors duration-200">
 
@@ -27,7 +57,7 @@
             </a>
             <nav class="flex items-center gap-1 lg:gap-2 overflow-x-auto pb-1 md:pb-0 w-full md:w-auto order-3 md:order-2">
                 <a href="{{ route('clientes.create') }}" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-brand-dark dark:text-gray-300 hover:text-brand-orange hover:bg-orange-50 dark:hover:bg-gray-700 transition-colors">+ Agregar Nuevo Cliente</a>
-                <a href="#" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-brand-dark dark:text-gray-300 hover:text-brand-orange hover:bg-orange-50 dark:hover:bg-gray-700 transition-colors">🔍 Consulta</a>
+                <a href="{{ route('clientes.consulta') }}" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-brand-dark dark:text-gray-300 hover:text-brand-orange hover:bg-orange-50 dark:hover:bg-gray-700 transition-colors">🔍 Consulta</a>
                 <a href="{{ route('modificaciones.index') }}" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-brand-orange dark:text-brand-orange bg-orange-50 dark:bg-gray-700 transition-colors">✏️ Modificaciones</a>
                 <a href="/" class="whitespace-nowrap px-3 py-2 rounded-md text-sm font-bold text-white bg-brand-orange shadow-[0_4px_10px_rgba(255,160,0,0.3)] hover:bg-brand-gold transition-all">💵 Venta</a>
             </nav>
