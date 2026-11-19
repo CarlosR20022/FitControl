@@ -13,19 +13,31 @@ class DashboardController extends Controller
     public function index()
     {
         $hoy = Carbon::today();
-        $inicioMes = Carbon::now()->startOfMonth();
+
+        // Las columnas fecha_vencimiento y fecha_registro son DATE (sin hora).
+        // Se comparan como texto 'YYYY-MM-DD': si se pasa un Carbon con hora
+        // ('2026-11-18 00:00:00'), SQLite trata el día de hoy como si ya hubiera
+        // pasado y los vencimientos de hoy salen como vencidos en vez de vigentes.
+        $hoyStr = $hoy->toDateString();
+        $inicioMesStr = Carbon::now()->startOfMonth()->toDateString();
+        $en5DiasStr = $hoy->copy()->addDays(5)->toDateString();
+        $hace7DiasStr = $hoy->copy()->subDays(7)->toDateString();
+        $ayerStr = $hoy->copy()->subDay()->toDateString();
 
         // 1. Tarjetas Principales
-        $sociosVigentes = Cliente::where('fecha_vencimiento', '>=', $hoy)->count();
-        $porVencer = Cliente::whereBetween('fecha_vencimiento', [$hoy, $hoy->copy()->addDays(5)])->count();
-        $vencidosRecientes = Cliente::whereBetween('fecha_vencimiento', [$hoy->copy()->subDays(7), $hoy->copy()->subDay()])->count();
+        $sociosVigentes = Cliente::where('fecha_vencimiento', '>=', $hoyStr)->count();
+        $porVencer = Cliente::whereBetween('fecha_vencimiento', [$hoyStr, $en5DiasStr])->count();
+        $vencidosRecientes = Cliente::whereBetween('fecha_vencimiento', [$hace7DiasStr, $ayerStr])->count();
 
         // 2. Métricas Secundarias
         $totalHistorico = Cliente::count();
-        $nuevosMes = Cliente::where('fecha_registro', '>=', $inicioMes)->count();
-        $bajasMes = Cliente::where('fecha_vencimiento', '>=', $inicioMes)
-                            ->where('fecha_vencimiento', '<', $hoy)
-                            ->count();
+        $nuevosMes = Cliente::where('fecha_registro', '>=', $inicioMesStr)->count();
+        // Solo cuentan las bajas de mensualidad o semana (ver Cliente::filtrarConMembresia)
+        $bajasMes = Cliente::filtrarConMembresia(
+            Cliente::where('fecha_vencimiento', '>=', $inicioMesStr)
+                ->where('fecha_vencimiento', '<', $hoyStr)
+                ->pluck('id')
+        )->count();
 
         // 3. Finanzas
         $ingresosDia = Pago::whereDate('fecha_pago', $hoy)->sum('total');

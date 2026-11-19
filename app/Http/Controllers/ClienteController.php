@@ -77,7 +77,8 @@ class ClienteController extends Controller
     // Lista de socios vigentes
     public function vigentes()
     {
-        $hoy = Carbon::today();
+        // Fecha como texto 'YYYY-MM-DD' (ver nota en DashboardController)
+        $hoy = Carbon::today()->toDateString();
         
         // Buscamos clientes cuya fecha de vencimiento sea mayor o igual a hoy
         $clientes = Cliente::where('fecha_vencimiento', '>=', $hoy)
@@ -89,7 +90,8 @@ class ClienteController extends Controller
     // Lista de socios vencidos
     public function vencidos()
     {
-        $hoy = \Carbon\Carbon::today();
+        // Fecha como texto 'YYYY-MM-DD' (ver nota en DashboardController)
+        $hoy = \Carbon\Carbon::today()->toDateString();
         
         $clientes = Cliente::where('fecha_vencimiento', '<', $hoy)
                            ->orderBy('fecha_vencimiento', 'desc')
@@ -103,7 +105,8 @@ class ClienteController extends Controller
     {
         $hoy = Carbon::today();
 
-        $clientes = Cliente::whereBetween('fecha_vencimiento', [$hoy, $hoy->copy()->addDays(5)])
+        // Fechas como texto 'YYYY-MM-DD' (ver nota en DashboardController)
+        $clientes = Cliente::whereBetween('fecha_vencimiento', [$hoy->toDateString(), $hoy->copy()->addDays(5)->toDateString()])
                            ->orderBy('fecha_vencimiento', 'asc')
                            ->get();
 
@@ -122,7 +125,8 @@ class ClienteController extends Controller
     // Lista de socios nuevos del mes actual
     public function nuevos()
     {
-        $inicioMes = Carbon::now()->startOfMonth();
+        // Fecha como texto 'YYYY-MM-DD' (ver nota en DashboardController)
+        $inicioMes = Carbon::now()->startOfMonth()->toDateString();
 
         $clientes = Cliente::where('fecha_registro', '>=', $inicioMes)
                            ->orderBy('fecha_registro', 'desc')
@@ -134,13 +138,19 @@ class ClienteController extends Controller
     // Lista de bajas del mes actual: vencieron este mes y ya pasó su fecha
     public function bajas()
     {
-        $hoy = Carbon::today();
-        $inicioMes = Carbon::now()->startOfMonth();
+        // Fechas como texto 'YYYY-MM-DD' (ver nota en DashboardController)
+        $hoy = Carbon::today()->toDateString();
+        $inicioMes = Carbon::now()->startOfMonth()->toDateString();
 
-        $clientes = Cliente::where('fecha_vencimiento', '>=', $inicioMes)
+        $candidatos = Cliente::where('fecha_vencimiento', '>=', $inicioMes)
                            ->where('fecha_vencimiento', '<', $hoy)
                            ->orderBy('fecha_vencimiento', 'desc')
                            ->get();
+
+        // Solo cuentan las bajas de mensualidad o semana: las visitas de un
+        // día no son bajas, solo fueron un día al gimnasio.
+        $ids = Cliente::filtrarConMembresia($candidatos->pluck('id'));
+        $clientes = $candidatos->filter(fn ($cliente) => $ids->contains($cliente->id))->values();
 
         return view('clientes.bajas', compact('clientes'));
     }

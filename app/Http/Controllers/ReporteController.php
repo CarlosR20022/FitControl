@@ -85,12 +85,13 @@ class ReporteController extends Controller
                           ->get();
 
         // 2. Socios vencidos a la fecha de fin del periodo
-        $vencidos = Cliente::where('fecha_vencimiento', '<', $hoy)
+        // (fecha como texto 'YYYY-MM-DD', ver nota en DashboardController)
+        $vencidos = Cliente::where('fecha_vencimiento', '<', $hoy->toDateString())
                            ->orderBy('fecha_vencimiento', 'desc')
                            ->get();
 
         // 3. Próximos a vencer (próximos 5 días) = próximas renovaciones, con su fecha de vencimiento
-        $porVencer = Cliente::whereBetween('fecha_vencimiento', [$hoy, $hoy->copy()->addDays(5)])
+        $porVencer = Cliente::whereBetween('fecha_vencimiento', [$hoy->toDateString(), $hoy->copy()->addDays(5)->toDateString()])
                              ->orderBy('fecha_vencimiento', 'asc')
                              ->get();
         $renovaciones = $porVencer;
@@ -100,9 +101,13 @@ class ReporteController extends Controller
 
         // 5. Bajas en el periodo: vencieron dentro de esas fechas y ya pasó su fecha
         $bajas = Cliente::whereBetween('fecha_vencimiento', [$inicio->toDateString(), $fin->toDateString()])
-                         ->where('fecha_vencimiento', '<', $hoy)
+                         ->where('fecha_vencimiento', '<', $hoy->toDateString())
                          ->orderBy('fecha_vencimiento', 'desc')
                          ->get();
+
+        // Solo cuentan las bajas de mensualidad o semana (ver Cliente::filtrarConMembresia)
+        $idsBajas = Cliente::filtrarConMembresia($bajas->pluck('id'));
+        $bajas = $bajas->filter(fn ($cliente) => $idsBajas->contains($cliente->id))->values();
 
         // 6. Ingresos del periodo, con el total por día y el total general
         $pagos = Pago::with(['cliente', 'producto'])
